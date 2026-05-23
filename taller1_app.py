@@ -189,28 +189,6 @@ st.markdown("""
 
 
 
-# ─── KPIs ────────────────────────────────────────────────────────────────────
-st.markdown(f"""
-<div class="kpi-row">
-  <div class="kpi">
-    <div class="kpi-num" style="color:{C_ROJO};">$6,794</div>
-    <div class="kpi-label">PIB per cápita Colombia 2022<br>(vs. media LATAM $8,194)</div>
-  </div>
-  <div class="kpi">
-    <div class="kpi-num" style="color:{C_ROJO};">15.9%</div>
-    <div class="kpi-label">Desempleo pico COVID 2020<br>(+5.4 pp sobre media pre-pandemia)</div>
-  </div>
-  <div class="kpi">
-    <div class="kpi-num" style="color:{C_SUBT};">4.5%</div>
-    <div class="kpi-label">Inversión educación promedio<br>(por debajo del 5.5% meta OCDE)</div>
-  </div>
-  <div class="kpi">
-    <div class="kpi-num" style="color:{C_VERDE};">−1.5 pp</div>
-    <div class="kpi-label">Reducción estimada desempleo<br>al alcanzar meta 5.5% PIB</div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
 # ─── TARJETAS NARRATIVAS ─────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="cards-row">
@@ -246,82 +224,112 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ─── VISUALIZACIONES PRINCIPALES ─────────────────────────────────────────────
+# ─── KPIs ────────────────────────────────────────────────────────────────────
+st.markdown(f"""
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-num" style="color:{C_SUBT};">4.5%</div>
+    <div class="kpi-label">Inversión educación promedio<br>(por debajo del 5.5% meta OCDE)</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-num" style="color:{C_ROJO};">$6,794</div>
+    <div class="kpi-label">PIB per cápita Colombia 2022<br>(vs. media LATAM $8,194)</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-num" style="color:{C_ROJO};">15.9%</div>
+    <div class="kpi-label">Desempleo pico COVID 2020<br>(+5.4 pp sobre media pre-pandemia)</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-num" style="color:{C_VERDE};">−1.5 pp</div>
+    <div class="kpi-label">Reducción estimada desempleo<br>al alcanzar meta 5.5% PIB</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ─── GRÁFICO SUPERIOR: RETO 3 — Persuasión (gráfico dual) ───────────────────
+st.markdown(
+    "<p style='font-size:13px; font-weight:700; color:#0F2044; margin-bottom:4px;'>"
+    "La correlación inversa que sustenta la recomendación: "
+    "más educación → menos desempleo</p>"
+    "<p class='fuente'>Banco Mundial (SE.XPD.TOTL.GD.ZS) + DANE–GEIH · 2012–2022</p>",
+    unsafe_allow_html=True,
+)
+
+fig3 = make_subplots(specs=[[{"secondary_y": True}]])
+
+# Área de desempleo (eje izquierdo)
+fig3.add_trace(go.Scatter(
+    x=años_ed, y=[d for a, d in zip(años, desemp) if 2012 <= a <= 2022],
+    fill="tozeroy", fillcolor=f"rgba(230,57,70,0.10)",
+    line=dict(color=C_ROJO, width=2.5),
+    marker=dict(size=7, color=C_ROJO),
+    name="Desempleo (%)",
+    hovertemplate="<b>%{x}</b> · Desempleo: %{y:.1f}%<extra></extra>",
+), secondary_y=False)
+
+# Línea de inversión en educación (eje derecho)
+fig3.add_trace(go.Scatter(
+    x=años_ed, y=educ,
+    line=dict(color=C_AZUL, width=2.5, dash="dot"),
+    marker=dict(size=7, color=C_AZUL),
+    name="Inversión educación (% PIB)",
+    hovertemplate="<b>%{x}</b> · Educ: %{y:.2f}% PIB<extra></extra>",
+), secondary_y=True)
+
+# Línea meta 5.5%
+fig3.add_hline(
+    y=5.5, secondary_y=True,
+    line_dash="dot", line_color=C_VERDE, line_width=1.5,
+    annotation_text="Meta 5.5% PIB",
+    annotation_position="top right",
+    annotation_font_color=C_VERDE, annotation_font_size=10,
+)
+
+# Anotación de correlación
+fig3.add_annotation(
+    x=2021, y=13.8,
+    text="<b>2021</b>: inversión sube a 5.03%<br>→ desempleo cae 2.1 pp",
+    showarrow=True, arrowhead=2, arrowcolor=C_TEXTO,
+    ax=-120, ay=-30,
+    font=dict(size=10, color=C_TEXTO),
+    bgcolor="rgba(255,255,255,0.9)",
+    bordercolor=C_GRIS_LT, borderwidth=1,
+)
+
+fig3.update_layout(
+    height=260,
+    margin=dict(l=0, r=0, t=10, b=30),
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    legend=dict(
+        orientation="h", y=1.12, x=0,
+        font=dict(size=11, color=C_TEXTO),
+    ),
+    hoverlabel=dict(bgcolor="white", font_size=12),
+)
+fig3.update_xaxes(
+    showgrid=False,
+    tickfont=dict(size=10, color=C_SUBT),
+)
+fig3.update_yaxes(
+    showgrid=True, gridcolor="rgba(203,213,225,0.5)",
+    ticksuffix="%", tickfont=dict(size=10, color=C_ROJO),
+    secondary_y=False, title_text="",
+)
+fig3.update_yaxes(
+    showgrid=False,
+    ticksuffix="% PIB", tickfont=dict(size=10, color=C_AZUL),
+    secondary_y=True, title_text="",
+    range=[3.5, 6.2],
+)
+
+st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False})
+
+# ─── GRÁFICOS INFERIORES ─────────────────────────────────────────────────────
 col_left, col_right = st.columns([1, 1], gap="medium")
 
-# ── GRÁFICO IZQUIERDO: RETO 1 — Jerarquía ─────────────────────────────────
+# ── GRÁFICO IZQUIERDO: RETO 2 — Contraste ─────────────────────────────────
 with col_left:
-    st.markdown(
-        "<p style='font-size:13px; font-weight:700; color:#0F2044; margin-bottom:4px;'>"
-        "Colombia en el ranking latinoamericano de PIB per cápita</p>"
-        "<p class='fuente'>Banco Mundial · NY.GDP.PCAP.CD 2022 · "
-        "<b style='color:#E63946;'>Colombia destacada</b> · resto en gris</p>",
-        unsafe_allow_html=True,
-    )
-
-    fig1 = go.Figure()
-
-    # Barras
-    fig1.add_trace(go.Bar(
-        y=paises, x=gdp_val,
-        orientation="h",
-        marker_color=colores_bar,
-        marker_line_width=0,
-        hovertemplate="<b>%{y}</b><br>$%{x:,.0f}<extra></extra>",
-    ))
-
-    # Línea de media regional
-    fig1.add_vline(
-        x=media_latam, line_dash="dot", line_color=C_SUBT, line_width=1.2,
-        annotation_text=f"Media LATAM<br>${media_latam:,.0f}",
-        annotation_position="top right",
-        annotation_font_size=10,
-        annotation_font_color=C_SUBT,
-    )
-
-    # Anotación Colombia
-    fig1.add_annotation(
-        x=gdp_val[col_idx], y=col_idx,
-        text=f"<b>Colombia: ${gdp_val[col_idx]:,}</b><br>Puesto 9 · bajo la media",
-        showarrow=True, arrowhead=2, arrowcolor=C_ROJO,
-        ax=120, ay=0,
-        font=dict(color=C_ROJO, size=10.5),
-        bgcolor="rgba(255,255,255,0.9)",
-        bordercolor=C_ROJO, borderwidth=1,
-    )
-
-    fig1.update_layout(
-        height=500,
-        margin=dict(l=0, r=60, t=10, b=30),
-        plot_bgcolor="rgba(0,0,0,0)",
-        paper_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(
-            showgrid=False, showticklabels=False,
-            zeroline=False, range=[0, max(gdp_val) * 1.28],
-        ),
-        yaxis=dict(
-            showgrid=False, tickfont=dict(size=11, color=C_TEXTO),
-            automargin=True,
-        ),
-        showlegend=False,
-        hoverlabel=dict(bgcolor="white", font_size=12),
-    )
-
-    # Etiquetas de valor al final de las barras
-    for i, (v, p) in enumerate(zip(gdp_val, paises)):
-        peso = "bold" if p == "Colombia" else "normal"
-        color = C_ROJO if p == "Colombia" else C_SUBT
-        fig1.add_annotation(
-            x=v, y=i,
-            text=f"<b>${v:,}</b>" if p == "Colombia" else f"${v:,}",
-            showarrow=False, xanchor="left", xshift=6,
-            font=dict(size=9.5, color=color),
-        )
-
-    st.plotly_chart(fig1, use_container_width=True, config={"displayModeBar": False})
-
-# ── GRÁFICO DERECHO: RETO 2 — Contraste ───────────────────────────────────
-with col_right:
     st.markdown(
         "<p style='font-size:13px; font-weight:700; color:#0F2044; margin-bottom:4px;'>"
         "Tasa de desempleo en Colombia: el choque COVID y la recuperación</p>"
@@ -418,84 +426,75 @@ with col_right:
 
     st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
 
-# ─── GRÁFICO INFERIOR: RETO 3 — Persuasión (gráfico dual) ────────────────────
-st.markdown(
-    "<p style='font-size:13px; font-weight:700; color:#0F2044; margin-bottom:4px;'>"
-    "La correlación inversa que sustenta la recomendación: "
-    "más educación → menos desempleo</p>"
-    "<p class='fuente'>Banco Mundial (SE.XPD.TOTL.GD.ZS) + DANE–GEIH · 2012–2022</p>",
-    unsafe_allow_html=True,
-)
+# ── GRÁFICO DERECHO: RETO 1 — Jerarquía ───────────────────────────────────
+with col_right:
+    st.markdown(
+        "<p style='font-size:13px; font-weight:700; color:#0F2044; margin-bottom:4px;'>"
+        "Colombia en el ranking latinoamericano de PIB per cápita</p>"
+        "<p class='fuente'>Banco Mundial · NY.GDP.PCAP.CD 2022 · "
+        "<b style='color:#E63946;'>Colombia destacada</b> · resto en gris</p>",
+        unsafe_allow_html=True,
+    )
 
-fig3 = make_subplots(specs=[[{"secondary_y": True}]])
+    fig1 = go.Figure()
 
-# Área de desempleo (eje izquierdo)
-fig3.add_trace(go.Scatter(
-    x=años_ed, y=[d for a, d in zip(años, desemp) if 2012 <= a <= 2022],
-    fill="tozeroy", fillcolor=f"rgba(230,57,70,0.10)",
-    line=dict(color=C_ROJO, width=2.5),
-    marker=dict(size=7, color=C_ROJO),
-    name="Desempleo (%)",
-    hovertemplate="<b>%{x}</b> · Desempleo: %{y:.1f}%<extra></extra>",
-), secondary_y=False)
+    # Barras
+    fig1.add_trace(go.Bar(
+        y=paises, x=gdp_val,
+        orientation="h",
+        marker_color=colores_bar,
+        marker_line_width=0,
+        hovertemplate="<b>%{y}</b><br>$%{x:,.0f}<extra></extra>",
+    ))
 
-# Línea de inversión en educación (eje derecho)
-fig3.add_trace(go.Scatter(
-    x=años_ed, y=educ,
-    line=dict(color=C_AZUL, width=2.5, dash="dot"),
-    marker=dict(size=7, color=C_AZUL),
-    name="Inversión educación (% PIB)",
-    hovertemplate="<b>%{x}</b> · Educ: %{y:.2f}% PIB<extra></extra>",
-), secondary_y=True)
+    # Línea de media regional
+    fig1.add_vline(
+        x=media_latam, line_dash="dot", line_color=C_SUBT, line_width=1.2,
+        annotation_text=f"Media LATAM<br>${media_latam:,.0f}",
+        annotation_position="top right",
+        annotation_font_size=10,
+        annotation_font_color=C_SUBT,
+    )
 
-# Línea meta 5.5%
-fig3.add_hline(
-    y=5.5, secondary_y=True,
-    line_dash="dot", line_color=C_VERDE, line_width=1.5,
-    annotation_text="Meta 5.5% PIB",
-    annotation_position="top right",
-    annotation_font_color=C_VERDE, annotation_font_size=10,
-)
+    # Anotación Colombia
+    fig1.add_annotation(
+        x=gdp_val[col_idx], y=col_idx,
+        text=f"<b>Colombia: ${gdp_val[col_idx]:,}</b><br>Puesto 9 · bajo la media",
+        showarrow=True, arrowhead=2, arrowcolor=C_ROJO,
+        ax=120, ay=0,
+        font=dict(color=C_ROJO, size=10.5),
+        bgcolor="rgba(255,255,255,0.9)",
+        bordercolor=C_ROJO, borderwidth=1,
+    )
 
-# Anotación de correlación
-fig3.add_annotation(
-    x=2021, y=13.8,
-    text="<b>2021</b>: inversión sube a 5.03%<br>→ desempleo cae 2.1 pp",
-    showarrow=True, arrowhead=2, arrowcolor=C_TEXTO,
-    ax=-120, ay=-30,
-    font=dict(size=10, color=C_TEXTO),
-    bgcolor="rgba(255,255,255,0.9)",
-    bordercolor=C_GRIS_LT, borderwidth=1,
-)
+    fig1.update_layout(
+        height=500,
+        margin=dict(l=0, r=60, t=10, b=30),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        xaxis=dict(
+            showgrid=False, showticklabels=False,
+            zeroline=False, range=[0, max(gdp_val) * 1.28],
+        ),
+        yaxis=dict(
+            showgrid=False, tickfont=dict(size=11, color=C_TEXTO),
+            automargin=True,
+        ),
+        showlegend=False,
+        hoverlabel=dict(bgcolor="white", font_size=12),
+    )
 
-fig3.update_layout(
-    height=260,
-    margin=dict(l=0, r=0, t=10, b=30),
-    plot_bgcolor="rgba(0,0,0,0)",
-    paper_bgcolor="rgba(0,0,0,0)",
-    legend=dict(
-        orientation="h", y=1.12, x=0,
-        font=dict(size=11, color=C_TEXTO),
-    ),
-    hoverlabel=dict(bgcolor="white", font_size=12),
-)
-fig3.update_xaxes(
-    showgrid=False,
-    tickfont=dict(size=10, color=C_SUBT),
-)
-fig3.update_yaxes(
-    showgrid=True, gridcolor="rgba(203,213,225,0.5)",
-    ticksuffix="%", tickfont=dict(size=10, color=C_ROJO),
-    secondary_y=False, title_text="",
-)
-fig3.update_yaxes(
-    showgrid=False,
-    ticksuffix="% PIB", tickfont=dict(size=10, color=C_AZUL),
-    secondary_y=True, title_text="",
-    range=[3.5, 6.2],
-)
+    # Etiquetas de valor al final de las barras
+    for i, (v, p) in enumerate(zip(gdp_val, paises)):
+        color = C_ROJO if p == "Colombia" else C_SUBT
+        fig1.add_annotation(
+            x=v, y=i,
+            text=f"<b>${v:,}</b>" if p == "Colombia" else f"${v:,}",
+            showarrow=False, xanchor="left", xshift=6,
+            font=dict(size=9.5, color=color),
+        )
 
-st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig1, use_container_width=True, config={"displayModeBar": False})
 
 # ─── BOX DE RECOMENDACIÓN ────────────────────────────────────────────────────
 st.markdown(f"""
