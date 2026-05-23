@@ -187,14 +187,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ─── BADGES DE RETOS ─────────────────────────────────────────────────────────
-st.markdown("""
-<div class="retos-row">
-  <span class="reto-badge badge-r1">● Reto 1 · Jerarquía: color selectivo + orden + Data-to-Ink</span>
-  <span class="reto-badge badge-r2">● Reto 2 · Contraste: figura/fondo + anomalía COVID</span>
-  <span class="reto-badge badge-r3">● Reto 3 · Persuasión: Contexto → Hallazgo → Recomendación</span>
-</div>
-""", unsafe_allow_html=True)
+
 
 # ─── KPIs ────────────────────────────────────────────────────────────────────
 st.markdown(f"""
